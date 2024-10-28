@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: pet-clinic
+  profiles:
+    active: test
+  jackson:
+    default-property-inclusion: non_null
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:petclinic;MODE=MYSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+  jpa:
+    open-in-view: false
+    show-sql: true
+    database: mysql
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      data-locations: classpath:db/data.sql
+      mode: always
+security:
+  sql:
+    find-user-by-username: SELECT username, password, enabled FROM users WHERE username = ?
+    find-role-by-username: SELECT username, role FROM roles WHERE username = ?
+  ignore-paths: /actuator, /actuator/**, /swagger-ui/**, /swagger-ui.html, /v3/api-docs/**, /openapi.yml

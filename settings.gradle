@@ -1,0 +1,8 @@
+pluginManagement {
+    plugins {
+        id 'org.springframework.boot' version SPRING_BOOT_VERSION
+        id 'io.spring.dependency-management' version SPRING_IO_VERSION
+        id 'org.openapi.generator' version OPENAPI_GENERATOR_VERSION
+    }
+}
+rootProject.name = 'pet-clinic'

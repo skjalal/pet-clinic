@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: pet-clinic
+  profiles:
+    active: local
+  jackson:
+    default-property-inclusion: non_null
+security:
+  sql:
+    find-user-by-username: SELECT username, password, enabled FROM users WHERE username = ?
+    find-role-by-username: SELECT username, role FROM roles WHERE username = ?
+  ignore-paths: /swagger-ui/**, /swagger-ui.html, /v3/api-docs/**, /openapi.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:mysql://localhost:3306/petclinic
+    username: root
+    password: mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+springdoc:
+  swagger-ui:
+    url: /openapi.yml
