@@ -31,11 +31,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${OPENAPI_VERSION}"
+    implementation "org.mapstruct:mapstruct:${MAPSTRUCT_VERSION}"
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'org.flywaydb:flyway-mysql'
+    annotationProcessor "org.mapstruct:mapstruct-processor:${MAPSTRUCT_VERSION}"
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -50,7 +53,9 @@ tasks.named('openApiGenerate') {
     outputs.upToDateWhen { false }
     generatorName = 'spring'
     inputSpec = "$rootDir/src/main/resources/static/openapi.yml"
+    outputDir = layout.buildDirectory.dir('generated').get().dir("openapi").toString()
     apiPackage = 'com.example.api'
+    invokerPackage = 'com.example'
     modelPackage = 'com.example.model'
     modelNameSuffix = 'DTO'
     configOptions = [interfaceOnly  : 'true',
@@ -63,14 +68,23 @@ tasks.named('openApiGenerate') {
                      dateLibrary    : 'java8']
 
     doLast {
-        copy {
-            from layout.buildDirectory.dir("generate-resources/main/src/main/java")
-            into layout.buildDirectory.dir('generated/sources/annotationProcessor/java/main')
+        delete fileTree(dir: layout.buildDirectory.dir("generated").get().dir("openapi"), exclude: '**/*.java')
+    }
+}
+
+
+sourceSets {
+    main {
+        java {
+            srcDirs += [layout.buildDirectory.dir("generated/openapi/src/main/java").get()]
         }
-        delete(layout.buildDirectory.dir("generate-resources").get())
     }
 }
 
 tasks.named('compileJava') {
     dependsOn('openApiGenerate')
+    options.compilerArgs += [
+            '-Amapstruct.defaultComponentModel=spring',
+            '-Amapstruct.defaultInjectionStrategy=constructor'
+    ]
 }
